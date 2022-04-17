@@ -35,7 +35,7 @@ class LocationEncoding(nn.Module):
                 aspect_len = pos_inx[i][1] - pos_inx[i][0] + 1
                 sentence_len = seq_len - aspect_len
                 weight[i].append(1 - relative_pos / sentence_len)
-        weight = torch.tensor(weight)
+        weight = torch.tensor(weight, dtype=torch.float32)
         return weight
 
 class AlignmentMatrix(nn.Module):
@@ -52,7 +52,7 @@ class AlignmentMatrix(nn.Module):
         asp_chunks = asp.chunk(asp_len, dim=1)
         for i, ctx_chunk in enumerate(ctx_chunks):
             for j, asp_chunk in enumerate(asp_chunks):
-                feat = torch.cat([ctx_chunk, asp_chunk, ctx_chunk*asp_chunk], dim=2) # batch_size x 1 x 6*hidden_dim 
+                feat = torch.cat([ctx_chunk, asp_chunk, ctx_chunk*asp_chunk], dim=2).float() # batch_size x 1 x 6*hidden_dim 
                 alignment_mat[:, i, j] = feat.matmul(self.w_u.expand(batch_size, -1, -1)).squeeze(-1).squeeze(-1) 
         return alignment_mat
 
